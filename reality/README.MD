@@ -6,6 +6,8 @@ XRay VLESS-Reality Docker 镜像，支持 tcp（vision）、xhttp、后置代理
 
 > 镜像每两天 UTC+8 04:00 自动构建。
 
+> 还没有 VPS？可通过我的 AFF 购买：[搬瓦工](https://bandwagonhost.com/aff.php?aff=63939) / [DMIT](https://www.dmit.io/aff.php?aff=3957) / [Vultr](https://www.vultr.com/?ref=6881279) / [nube 按量付费](https://nube.sh/invite/5986088028ENM0)
+
 ## 懒人一键安装
 
 ```
@@ -73,6 +75,8 @@ docker run -d --name xray_reality --restart=always --log-opt max-size=100m --log
 
 **后置代理**：`PROXY` 为 `socks5://` 或 `http://` URL（可含账密）。启用后除 `geoip:cn`、`geoip:private`、`bittorrent` 外，其余出站走上游代理。主要用于链式代理纯净家宽 IP，用于解锁 Netflix 流媒体及 AI 使用/付款场景
 
+> 推荐家宽代理（AFF）：[Proxy-Cheap](https://app.proxy-cheap.com/r/Pbqf9l) / [IPRoyal](https://iproyal.cn/?r=249487)，购买 socks5/http 家宽代理后填入 `PROXY` 即可
+
 ```
 # socks5
 docker run -d --name xray_reality --restart=always --log-opt max-size=100m --log-opt max-file=3 -p 443:443 -e PROXY="socks5://user:pass@1.2.3.4:1080" wulabing/xray_docker_reality:latest
@@ -118,7 +122,7 @@ docker rm -f xray_reality
 * NETWORK：网络类型，`tcp`（vless-vision）或 `xhttp`。默认值为 tcp。
 * XHTTP_PATH：xhttp 模式的路径，仅 NETWORK=xhttp 生效。未设置时随机生成。
 * SHORTIDS：reality shortId（空格分隔可多个，hex/偶数长度/≤16）。默认留空。
-* PROXY：后置代理 URL，`socks5://[user:pass@]host:port` 或 `http://[user:pass@]host:port`。默认不启用。
+* PROXY：后置代理 URL，`socks5://[user:pass@]host:port` 或 `http://[user:pass@]host:port`。默认不启用。（家宽代理推荐见「后置代理」章节）
 * DOMAIN：偷自己模式的自有域名，设置后自动启用内置 Caddy 自建站。默认不启用。
 * ACME_EMAIL：偷自己模式下 ACME 证书注册邮箱（可选）。
 * EXTERNAL_PORT：端口映射模式对外端口。默认 443。
@@ -145,6 +149,14 @@ https://bandwagonhost.com/aff.php?aff=63939
 您可以使用我的 JustMySocks AFF 购买搬瓦工提供的代理
 
 https://justmysocks.net/members/aff.php?aff=17621
+
+您可以使用我的 Proxy-Cheap AFF 购买 socks5/http 家宽代理
+
+https://app.proxy-cheap.com/r/Pbqf9l
+
+您可以使用我的 IPRoyal AFF 购买 socks5/http 家宽代理
+
+https://iproyal.cn/?r=249487
 
 您可以使用我的 DMIT AFF 购买 VPS
 

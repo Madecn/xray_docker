@@ -370,6 +370,8 @@ if [ -n "$PROXY" ]; then
       | .routing.rules = ((.routing.rules | map(select(.outboundTag != "proxy"))) + [{"type":"field","outboundTag":"proxy","network":"tcp,udp"}])' \
       /config.json > /config.json_tmp && mv /config.json_tmp /config.json
   fi
+else
+  echo "Tip: 设置 PROXY 环境变量可接入家宽代理解锁 Netflix/AI 场景，推荐 Proxy-Cheap https://app.proxy-cheap.com/r/Pbqf9l 或 IPRoyal https://iproyal.cn/?r=249487"
 fi
 
 # 持久化状态
@@ -444,6 +446,11 @@ if [ "$IPV6" != "null" ]; then
   echo "IPV6 订阅连接: $SUB_IPV6" >> /config_info.txt
   echo -e "IPV6 订阅二维码:\n$(echo "$SUB_IPV6" | qrencode -o - -t UTF8)" >> /config_info.txt
 fi
+
+echo "" >> /config_info.txt
+echo "===== 支持本项目 (AFF) =====" >> /config_info.txt
+echo "家宽代理(配合 PROXY 变量解锁流媒体/AI): Proxy-Cheap https://app.proxy-cheap.com/r/Pbqf9l | IPRoyal https://iproyal.cn/?r=249487" >> /config_info.txt
+echo "VPS: 搬瓦工 https://bandwagonhost.com/aff.php?aff=63939 | DMIT https://www.dmit.io/aff.php?aff=3957" >> /config_info.txt
 
 echo -e "\033[0m" >> /config_info.txt
 

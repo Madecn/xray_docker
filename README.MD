@@ -19,6 +19,8 @@ xray reality docker 镜像
 - [xray_docker_reality](https://github.com/wulabing/xray_docker/tree/master/reality)（统一镜像，支持 tcp / xhttp）
 - [xray_docker_xhttp_reality](https://github.com/wulabing/xray_docker/tree/master/xhttp_reality)（已合并至 reality，仅保留迁移说明）
 
+> 还没有 VPS？可通过我的 AFF 购买：[搬瓦工](https://bandwagonhost.com/aff.php?aff=63939) / [DMIT](https://www.dmit.io/aff.php?aff=3957) / [Vultr](https://www.vultr.com/?ref=6881279) / [nube 按量付费](https://nube.sh/invite/5986088028ENM0)
+
 ## 捐赠
 
 您可以使用我的 搬瓦工 AFF 购买 VPS
@@ -28,6 +30,14 @@ https://bandwagonhost.com/aff.php?aff=63939
 您可以使用我的 JustMySocks AFF 购买搬瓦工提供的代理
 
 https://justmysocks.net/members/aff.php?aff=17621
+
+您可以使用我的 Proxy-Cheap AFF 购买 socks5/http 家宽代理
+
+https://app.proxy-cheap.com/r/Pbqf9l
+
+您可以使用我的 IPRoyal AFF 购买 socks5/http 家宽代理
+
+https://iproyal.cn/?r=249487
 
 您可以使用我的 DMIT AFF 购买 VPS
 

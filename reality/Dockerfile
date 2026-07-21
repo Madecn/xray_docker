@@ -1,7 +1,7 @@
 # builder
 FROM golang:alpine AS builder
 LABEL maintainer="wulabing <wulabing@gmail.com>"
-LABEL version="0.1.0"
+LABEL version="0.1.2"
 
 
 #ENV GOPROXY=https://goproxy.cn,direct

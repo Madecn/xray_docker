@@ -28,6 +28,14 @@ https://bandwagonhost.com/aff.php?aff=63939
 
 https://justmysocks.net/members/aff.php?aff=17621
 
+您可以使用我的 Proxy-Cheap AFF 购买 socks5/http 家宽代理
+
+https://app.proxy-cheap.com/r/Pbqf9l
+
+您可以使用我的 IPRoyal AFF 购买 socks5/http 家宽代理
+
+https://iproyal.cn/?r=249487
+
 您可以使用我的 DMIT AFF 购买 VPS
 
 https://www.dmit.io/aff.php?aff=3957
