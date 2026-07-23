@@ -68,11 +68,11 @@
         "decryption": "none"
       },
       "streamSettings": {
-        "network": "tcp",
+        "network": "raw",
         "security": "reality",
         "realitySettings": {
           "show": true,
-          "dest": "xx",
+          "target": "xx",
           "xver": 0,
           "maxTimeDiff": 0,
           "minClientVer": "1.0.0",

@@ -26,24 +26,39 @@ LEGACY_PUBLICKEY=""
 LEGACY_NETWORK=""
 LEGACY_EXTERNAL_PORT=""
 LEGACY_XHTTP_PATH=""
+LEGACY_SHORTIDS=""
 
 load_state() {
-  STATE_SRC="$STATE_FILE"
-  if [ ! -f "$STATE_SRC" ]; then
-    STATE_SRC="$LEGACY_STATE_FILE"
-  fi
-  if [ ! -f "$STATE_SRC" ]; then
-    return
-  fi
+  STATE_SEPARATOR="$(printf '\034')"
+  for STATE_SRC in "$STATE_FILE" "$LEGACY_STATE_FILE"; do
+    if [ ! -f "$STATE_SRC" ]; then
+      continue
+    fi
 
-  STATE_VALUES=$(jq -r '[.uuid // "", .private_key // "", .public_key // "", .dest // "", (.servernames // []) | join(" "), .network // "", .external_port // "", .xhttp_path // "", (.shortids // []) | join(" ")] | @tsv' "$STATE_SRC" 2>/dev/null)
-  if [ -z "$STATE_VALUES" ]; then
-    return
-  fi
+    if ! STATE_VALUES=$(jq -er '
+      if type == "object" then
+        [
+          (.uuid // "" | tostring),
+          (.private_key // "" | tostring),
+          (.public_key // "" | tostring),
+          (.dest // "" | tostring),
+          ((.servernames // []) | join(" ")),
+          (.network // "" | tostring),
+          (.external_port // "" | tostring),
+          (.xhttp_path // "" | tostring),
+          ((.shortids // []) | join(" "))
+        ] | join("\u001c")
+      else
+        empty
+      end' "$STATE_SRC" 2>/dev/null); then
+      continue
+    fi
 
-  IFS="$(printf '\t')" read -r STATE_UUID STATE_PRIVATEKEY STATE_PUBLICKEY STATE_DEST STATE_SERVERNAMES STATE_NETWORK STATE_EXTERNAL_PORT STATE_XHTTP_PATH STATE_SHORTIDS <<EOF_STATE
+    IFS="$STATE_SEPARATOR" read -r STATE_UUID STATE_PRIVATEKEY STATE_PUBLICKEY STATE_DEST STATE_SERVERNAMES STATE_NETWORK STATE_EXTERNAL_PORT STATE_XHTTP_PATH STATE_SHORTIDS <<EOF_STATE
 $STATE_VALUES
 EOF_STATE
+    return
+  done
 }
 
 load_legacy() {
@@ -68,6 +83,13 @@ load_legacy() {
     LEGACY_NETWORK=$(sed -n 's/^NETWORK: //p' "$LEGACY_INFO_FILE")
     LEGACY_EXTERNAL_PORT=$(sed -n 's/^PORT: //p' "$LEGACY_INFO_FILE")
     LEGACY_XHTTP_PATH=$(sed -n 's/^XHTTP_PATH: //p' "$LEGACY_INFO_FILE")
+    LEGACY_SHORTIDS=$(sed -n 's/^SHORTIDS: //p' "$LEGACY_INFO_FILE")
+    if [ -z "$LEGACY_SHORTIDS" ]; then
+      LEGACY_SHORTIDS=$(sed -n 's/^SHORTID: [^ ]* (\(.*\) 任选其一)$/\1/p' "$LEGACY_INFO_FILE")
+    fi
+    if [ -z "$LEGACY_SHORTIDS" ]; then
+      LEGACY_SHORTIDS=$(sed -n 's/^SHORTID: \([^ ]*\).*$/\1/p' "$LEGACY_INFO_FILE")
+    fi
   fi
 }
 
@@ -174,10 +196,12 @@ fi
 
 if [ "$NETWORK" = "xhttp" ]; then
   FLOW=""
+  XRAY_NETWORK="xhttp"
   echo "NETWORK: xhttp (flow disabled)"
 else
   NETWORK="tcp"
   FLOW="xtls-rprx-vision"
+  XRAY_NETWORK="raw"
   echo "NETWORK: tcp (flow xtls-rprx-vision)"
 fi
 
@@ -288,12 +312,15 @@ fi
 if [ -z "$SHORTIDS" ]; then
   if [ -n "$STATE_SHORTIDS" ]; then
     SHORTIDS="$STATE_SHORTIDS"
+  elif [ -n "$LEGACY_SHORTIDS" ]; then
+    SHORTIDS="$LEGACY_SHORTIDS"
   fi
 fi
 
 FIRST_SHORTID=""
 if [ -z "$SHORTIDS" ]; then
-  SHORTIDS_JSON_ARRAY='[""]'
+  REALITY_SHORTIDS_JSON_ARRAY='[""]'
+  SHORTIDS_JSON_ARRAY='[]'
 else
   SHORTIDS_VALID=true
   for sid in $SHORTIDS; do
@@ -304,9 +331,11 @@ else
   if [ "$SHORTIDS_VALID" = false ]; then
     echo "Warning: invalid SHORTIDS (expect hex, even length, <=16), fallback to empty"
     SHORTIDS=""
-    SHORTIDS_JSON_ARRAY='[""]'
+    REALITY_SHORTIDS_JSON_ARRAY='[""]'
+    SHORTIDS_JSON_ARRAY='[]'
   else
     SHORTIDS_JSON_ARRAY="[$(echo $SHORTIDS | awk '{for(i=1;i<=NF;i++) printf "\"%s\",", $i}' | sed 's/,$//')]"
+    REALITY_SHORTIDS_JSON_ARRAY="$SHORTIDS_JSON_ARRAY"
     FIRST_SHORTID=$(echo $SHORTIDS | awk '{print $1}')
   fi
 fi
@@ -327,13 +356,13 @@ jq \
   --arg dest "$DEST" \
   --arg flow "$FLOW" \
   --arg private_key "$PRIVATEKEY" \
-  --arg network "$NETWORK" \
+  --arg network "$XRAY_NETWORK" \
   --arg min_client_ver "$MIN_CLIENT_VER" \
   --argjson serverNames "$SERVERNAMES_JSON_ARRAY" \
-  --argjson shortIds "$SHORTIDS_JSON_ARRAY" \
+  --argjson shortIds "$REALITY_SHORTIDS_JSON_ARRAY" \
   '.inbounds[1].settings.clients[0].id = $uuid
   | .inbounds[1].settings.clients[0].flow = $flow
-  | .inbounds[1].streamSettings.realitySettings.dest = $dest
+  | .inbounds[1].streamSettings.realitySettings.target = $dest
   | .inbounds[1].streamSettings.realitySettings.minClientVer = $min_client_ver
   | .inbounds[1].streamSettings.realitySettings.serverNames = $serverNames
   | .inbounds[1].streamSettings.realitySettings.shortIds = $shortIds
@@ -497,4 +526,4 @@ if [ "$USE_CADDY" = true ]; then
 fi
 
 # run xray
-exec /xray -config /config.json
+exec /xray run -c /config.json
