@@ -75,7 +75,7 @@
           "dest": "xx",
           "xver": 0,
           "maxTimeDiff": 0,
-          "minClientVer": "",
+          "minClientVer": "1.0.0",
           "serverNames": [
             "xx"
           ],

@@ -112,6 +112,17 @@ parse_proxy() {
 load_state
 load_legacy
 
+MIN_CLIENT_VER="${MIN_CLIENT_VER:-1.0.0}"
+if ! printf '%s\n' "$MIN_CLIENT_VER" | awk -F. '
+  NF == 3 &&
+  $1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ && $3 ~ /^[0-9]+$/ &&
+  $1 + 0 <= 255 && $2 + 0 <= 255 && $3 + 0 <= 255 { exit 0 }
+  { exit 1 }
+'; then
+  echo "Error: Invalid MIN_CLIENT_VER format. Expected x.y.z with each segment in range 0-255"
+  exit 1
+fi
+
 LEGACY_UUID="$(filter_masked "$LEGACY_UUID")"
 LEGACY_PRIVATEKEY="$(filter_masked "$LEGACY_PRIVATEKEY")"
 LEGACY_PUBLICKEY="$(filter_masked "$LEGACY_PUBLICKEY")"
@@ -317,11 +328,13 @@ jq \
   --arg flow "$FLOW" \
   --arg private_key "$PRIVATEKEY" \
   --arg network "$NETWORK" \
+  --arg min_client_ver "$MIN_CLIENT_VER" \
   --argjson serverNames "$SERVERNAMES_JSON_ARRAY" \
   --argjson shortIds "$SHORTIDS_JSON_ARRAY" \
   '.inbounds[1].settings.clients[0].id = $uuid
   | .inbounds[1].settings.clients[0].flow = $flow
   | .inbounds[1].streamSettings.realitySettings.dest = $dest
+  | .inbounds[1].streamSettings.realitySettings.minClientVer = $min_client_ver
   | .inbounds[1].streamSettings.realitySettings.serverNames = $serverNames
   | .inbounds[1].streamSettings.realitySettings.shortIds = $shortIds
   | .routing.rules[0].domain = $serverNames
